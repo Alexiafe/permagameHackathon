@@ -25,6 +25,9 @@ class PermaGameLogic {
 		return actionArray.reduce((obj1, obj2) => (obj1.score > obj2.score ? obj1 : obj2))
 	}
 
+
+	// If ROI high and soil quality < 10, increase a lot score to fertilize
+	// WHat to do : harvest or fertilize ?
 	/**
 	 *
 	 * @param {Parcel} parcel
@@ -73,7 +76,7 @@ class PermaGameLogic {
 	}
 
 	/**
-	 *
+	 * faire une aciton altruiste avant de recolter une plante ???
 	 * @param {Parcel} parcel
 	 * @returns {Action}
 	 */

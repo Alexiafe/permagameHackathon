@@ -2,67 +2,65 @@ const Library = require("./Library")
 const PermaGameLogic = require("./permaGameLogic").PermaGameLogic
 const { ActionEnum, GrowthEnum } = require("./enum")
 
-var turnCount = 0
-
-async function playTurn() {
-	const state = await Library.fetchGameState()
-	const garden = state.garden
-
-	const permagame = new PermaGameLogic(garden)
+async function playTurn(delta, tick) {
+	console.log(`--- TICK ${tick} ---`)
+	tick++
 
 	setLouisToken()
-	var actionList = permagame.getActionList()
-	executeActionList(actionList)
 
-	// const plants = await Library.fetchPlants()
+	// Promise.all([Library.fetchGameState(), Library.fetchActionList()]).then(([state, actionList]) => {
+	// 	if (actionList.length === 0) {
+	// 		const permagame = new PermaGameLogic(state.garden)
+	// 		var myActionList = permagame.getActionList()
+	// 		executeActionList(myActionList)
+	// 	} else {
+	// 		console.log('pass turn...')
+	// 	}
+	// })	
+	
+	const state = await Library.fetchGameState()
+	Promise.all([Library.fetchActionList()]).then(([actionList])=> {
+		console.log(JSON.stringify(actionList))
+	})
 
-	// console.log(JSON.stringify(plants))
 
-	// const line = Math.floor(Math.random() * gardenDimension);
-	// const column = Math.floor(Math.random() * gardenDimension);
-	// const plantType = "CARROT";
+	const permagame = new PermaGameLogic(state.garden)
 
-	// await Library.plant(line, column, plantType);
-	// console.log("plant", plantType, "in", column, line);
-
-	// setGregToken()
-	// const fertilize = await Library.fertilize(0, 2)
-
-	// setLouisToken()
-	// const fertilize = await Library.fertilize(0, 0)
-	// const plant = await Library.plant(0, 0, "CORN")
-	// const harvest = await Library.harvest(0, 0)
-
-	// const fertilize = await Library.fertilize(0, 0)
-
-	// console.log(JSON.stringify(garden[0][0]))
+	var myActionList = permagame.getActionList()
+	executeActionList(myActionList)
 }
 
-async function cycle(timeout) {
-	console.log(`--- TURN ${turnCount} ---`)
-	turnCount++
-	playTurn()
-		.catch((error) => console.error("error", error))
-		.finally(() => {
-			setTimeout(() => {
-				cycle(timeout)
-			}, timeout)
-		})
+
+// GAMING LOOP
+
+const hrtimeMs = function() {
+	let time = process.hrtime()
+	return time[0] * 1000 + time[1] / 1000000
 }
 
-function start() {
-	console.log("STARTING BOT!")
-	cycle(800)
+const TICK_RATE = 5
+let tick = 0
+let previous = hrtimeMs()
+let tickLengthMs = 1000 / TICK_RATE
+
+const loop = () => {
+	setTimeout(loop, tickLengthMs)
+	let now = hrtimeMs()
+	let delta = (now - previous) / 1000
+	console.log('delta', delta)
+	playTurn(delta, tick) // game logic would go here
+	previous = now
+	tick++
 }
 
-start()
+console.log("STARTING BOT!")
+loop() // starts the loop
 
 function executeActionList(actionList, maxAction = 1) {
 	var actionCount = 0
 
   console.log(actionList[0])
-  console.log(actionList[1])
-  console.log(actionList[2])
+
 	for (const key in actionList) {
 		if (actionCount >= maxAction) break
 

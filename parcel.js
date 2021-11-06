@@ -6,7 +6,7 @@ class Parcel {
 		this.line = line
 		this.column = column
 		this.garden = garden
-		
+
 		this.parcel = this.garden[line][column]
 		this.plant = this.parcel.plant
 		this.parcelHistory = this.parcel.parcelHistory
@@ -67,7 +67,7 @@ class Parcel {
 			if (this.soilQualityPercentage <= 1) return -1
 			totalExpenses += this.getFertilizationCountBeforeReady(plantName) * 5
 			plantPoints = this.getPlantProperties(plantName).points
-		} else {
+		} else if (this.isPlantExist() && !this.isPlantDead()) {
 			plantPoints = this.getPlantProperties().points
 		}
 
@@ -125,7 +125,6 @@ class Parcel {
 		if (topLine < 0) topLine = 0
 		var bottomLine = parseInt(this.line) + size
 		if (bottomLine >= this.garden[0].length) bottomLine = 9
-
 
 		const familyNeighbours = []
 		for (let line = topLine; line <= bottomLine; line++) {
