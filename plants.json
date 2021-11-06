@@ -1,0 +1,137 @@
+[
+	{
+		"plantName": "CARROT",
+		"plantFamily": "APIACEAE",
+		"nutrientNeed": "2.5%",
+		"points": 10,
+		"turnToBeReady": 15,
+		"turnToDie": 4,
+		"readyImg": "images/carrot.png"
+	},
+	{
+		"plantName": "CAULIFLOWER",
+		"plantFamily": "CRUCIFER",
+		"nutrientNeed": "2.5%",
+		"points": 8,
+		"turnToBeReady": 13,
+		"turnToDie": 6,
+		"readyImg": "images/cauliflower.png"
+	},
+	{
+		"plantName": "BROCCOLI",
+		"plantFamily": "CRUCIFER",
+		"nutrientNeed": "2.5%",
+		"points": 17,
+		"turnToBeReady": 25,
+		"turnToDie": 7,
+		"readyImg": "images/broccoli.png"
+	},
+	{
+		"plantName": "CELERY",
+		"plantFamily": "APIACEAE",
+		"nutrientNeed": "2.5%",
+		"points": 10,
+		"turnToBeReady": 15,
+		"turnToDie": 5,
+		"readyImg": "images/celery.png"
+	},
+	{
+		"plantName": "ARTICHOKE",
+		"plantFamily": "ASTERACEAE",
+		"nutrientNeed": "5.0%",
+		"points": 16,
+		"turnToBeReady": 17,
+		"turnToDie": 5,
+		"readyImg": "images/artichoke.png"
+	},
+	{
+		"plantName": "EGGPLANT",
+		"plantFamily": "SOLANACEAE",
+		"nutrientNeed": "2.5%",
+		"points": 6,
+		"turnToBeReady": 9,
+		"turnToDie": 3,
+		"readyImg": "images/eggplant.png"
+	},
+	{
+		"plantName": "ENDIVE",
+		"plantFamily": "ASTERACEAE",
+		"nutrientNeed": "1.0%",
+		"points": 3,
+		"turnToBeReady": 6,
+		"turnToDie": 3,
+		"readyImg": "images/endive.png"
+	},
+	{
+		"plantName": "FENNEL",
+		"plantFamily": "APIACEAE",
+		"nutrientNeed": "5.0%",
+		"points": 14,
+		"turnToBeReady": 15,
+		"turnToDie": 7,
+		"readyImg": "images/fennel.png"
+	},
+	{
+		"plantName": "POTATO",
+		"plantFamily": "SOLANACEAE",
+		"nutrientNeed": "2.5%",
+		"points": 10,
+		"turnToBeReady": 15,
+		"turnToDie": 5,
+		"readyImg": "images/potato.png"
+	},
+	{
+		"plantName": "PEPPER",
+		"plantFamily": "APIACEAE",
+		"nutrientNeed": "2.5%",
+		"points": 11,
+		"turnToBeReady": 14,
+		"turnToDie": 3,
+		"readyImg": "images/pepper.png"
+	},
+	{
+		"plantName": "CABBAGE",
+		"plantFamily": "ASTERACEAE",
+		"nutrientNeed": "1.0%",
+		"points": 8,
+		"turnToBeReady": 20,
+		"turnToDie": 5,
+		"readyImg": "images/cabbage.png"
+	},
+	{
+		"plantName": "CORN",
+		"plantFamily": "POACEAE",
+		"nutrientNeed": "5.0%",
+		"points": 22,
+		"turnToBeReady": 20,
+		"turnToDie": 5,
+		"readyImg": "images/corn.png"
+	},
+	{
+		"plantName": "RADISH",
+		"plantFamily": "CRUCIFER",
+		"nutrientNeed": "5.0%",
+		"points": 5,
+		"turnToBeReady": 7,
+		"turnToDie": 2,
+		"readyImg": "images/radish.png"
+	},
+	{
+		"plantName": "WHEAT",
+		"plantFamily": "POACEAE",
+		"nutrientNeed": "-5.0%",
+		"points": 0,
+		"turnToBeReady": 20,
+		"turnToDie": 5,
+		"readyImg": "images/wheat.png"
+	},
+	{
+		"plantName": "TOMATO",
+		"plantFamily": "SOLANACEAE",
+		"nutrientNeed": "5.0%",
+		"points": 8,
+		"turnToBeReady": 15,
+		"turnToDie": 5,
+		"readyImg": "images/tomato.png"
+	}
+]
