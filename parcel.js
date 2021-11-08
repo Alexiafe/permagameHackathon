@@ -36,15 +36,17 @@ class Parcel {
 		return this.plant.growth === GrowthEnum.DEAD
 	}
 
-	// Plant only if action == 'PLANT'
 	/**
-	 * @param {string} plantName
-	 * @param {ActionEnum} action
+	 * @param {string} plantName Simulate a plant
+	 * @param {ActionEnum} action if action is applied
 	 * @returns Roi
 	 */
-	getPlantRoi(action, plantName = null) {
-		var otherParticipationCount = 0
-		var myParticipationCount = 1
+	getPlantRoi(action = null, plantName = null) {
+		// Get contribution which is the percentage of score I'm gonna collect
+		let myContribution = 0
+		let otherParticipationCount = 0
+		let myParticipationCount = 0
+		if (action !== null) myParticipationCount += 1
 		for (const user in this.parcelHistory.playerInteraction) {
 			const number = this.parcelHistory.playerInteraction[user]
 			if (user === "lowi") {
@@ -53,35 +55,33 @@ class Parcel {
 				otherParticipationCount += number
 			}
 		}
-
-		var myPart = 0
 		if (myParticipationCount + otherParticipationCount > 0) {
-			myPart = myParticipationCount / (myParticipationCount + otherParticipationCount)
+			myContribution = myParticipationCount / (myParticipationCount + otherParticipationCount)
 		}
 
-		var totalExpenses = this.parcelHistory.totalExpenses
+		// get Total exenses (include 5 if I'm gonna fertilize)
+		let totalExpenses = this.parcelHistory.totalExpenses
 		if (action === ActionEnum.FERTILIZE) totalExpenses += 5
 
-		var plantPoints = 0
-		if (action === ActionEnum.PLANT && plantName) {
-			if (this.soilQualityPercentage <= 1) return -1
-			totalExpenses += this.getFertilizationCountBeforeReady(plantName) * 5
-			plantPoints = this.getPlantProperties(plantName).points
-		} else if (this.isPlantExist() && !this.isPlantDead()) {
-			plantPoints = this.getPlantProperties().points
+		// If plant will die after 2 turns, too risky to plant the plant so ROI will be 0
+		if (action === ActionEnum.PLANT && this.getNutrimentNeededPerTurn(plantName) > this.soilQualityPercentage * 2) {
+			return 0
 		}
 
-		return plantPoints - totalExpenses * myPart
+		// Get plant points
+		let plantPoints = 0
+		if (plantName || (this.isPlantExist() && !this.isPlantDead())) {
+			plantPoints = this.getPlantProperties(plantName).points
+		}
+
+		// Get future total expenses
+		totalExpenses += this.getFertilizationCountBeforeReady(plantName) * 5
+		return (plantPoints - totalExpenses) * myContribution
 	}
 
-	getPlantProperties(plantName) {
-		var plantNameToSearch = ""
-		if (plantName) {
-			plantNameToSearch = plantName
-		} else {
-			plantNameToSearch = this.plant.plantType
-		}
-		return PLANTS.find((o) => o.plantName === plantNameToSearch)
+	getPlantProperties(plantName = null) {
+		if (!plantName) plantName = this.plant.plantType
+		return PLANTS.find((o) => o.plantName === plantName)
 	}
 
 	getTurnsBeforeReady(plantName = null) {
@@ -89,41 +89,37 @@ class Parcel {
 		return this.getPlantProperties().turnToBeReady - this.plant.age
 	}
 
-	// TODO add with neighbours penality
-	// Is it percent ?
-	getNutrientNeededPerTurn(plantName = null) {
-		var neighbours = 0
-		if (plantName) neighbours = this.getNeighbours(plantName)
-		else neighbours = this.getNeighbours()
+	getNutrimentNeededPerTurn(plantName = null) {
+		let neighboursList = this.getNeighbours()
+		let plantFamily = ""
+		if (plantName) {
+			plantFamily = this.getPlantProperties(plantName).plantFamily
+		} else {
+			plantFamily = this.plant.plantFamily
+		}
+		let sameFamilyCount = neighboursList.filter((el) => el == plantFamily).length
+		let percentageFamilyPenalities = 1 + 0.4 * sameFamilyCount
 
-		var sameFamily = 0
-		if (plantName) sameFamily = neighbours.filter((el) => el == plantName.plantFamily).length
-		else sameFamily = neighbours.filter((el) => el == this.plant.plantFamily).length
-
-		var pourcentageFamilyPenalities = 1 + 0.4 * sameFamily
-
-		if (plantName)
-			return (parseFloat(this.getPlantProperties(plantName).nutrientNeed) / 100.0) * pourcentageFamilyPenalities
-		return (parseFloat(this.getPlantProperties().nutrientNeed) / 100.0) * pourcentageFamilyPenalities
+		return (parseFloat(this.getPlantProperties(plantName).nutrientNeed)) * percentageFamilyPenalities
 	}
 
 	getFertilizationCountBeforeReady(plantName = null) {
-		var nutrimentToAdd =
-			this.soilQualityPercentage - this.getNutrientNeededPerTurn(plantName) * this.getTurnsBeforeReady(plantName)
-		if (nutrimentToAdd < 0) return abs(nutrimentToAdd) / 50
+		let nutrimentToAdd =
+			this.soilQualityPercentage - this.getNutrimentNeededPerTurn(plantName) * this.getTurnsBeforeReady(plantName)
+		if (nutrimentToAdd < 0) return Math.abs(nutrimentToAdd) / 50
 		return 0
 	}
 
-	getNeighbours(plantName = null) {
+	getNeighbours() {
 		const size = 1
 
-		var leftColumn = parseInt(this.column) - size
+		let leftColumn = parseInt(this.column) - size
 		if (leftColumn < 0) leftColumn = 0
-		var rightColumn = parseInt(this.column) + size
+		let rightColumn = parseInt(this.column) + size
 		if (rightColumn >= this.garden.length) rightColumn = 9
-		var topLine = parseInt(this.line) - size
+		let topLine = parseInt(this.line) - size
 		if (topLine < 0) topLine = 0
-		var bottomLine = parseInt(this.line) + size
+		let bottomLine = parseInt(this.line) + size
 		if (bottomLine >= this.garden[0].length) bottomLine = 9
 
 		const familyNeighbours = []
@@ -143,7 +139,7 @@ class Parcel {
 	 * @returns {string}
 	 */
 	getBestPlant() {
-		var plantList = []
+		let plantList = []
 		for (const key in PLANTS) {
 			plantList.push({
 				plantName: PLANTS[key].plantName,

@@ -1,90 +1,55 @@
 const Library = require("./Library")
 const PermaGameLogic = require("./permaGameLogic").PermaGameLogic
-const { ActionEnum, GrowthEnum } = require("./enum")
+const { ActionEnum } = require("./enum")
 
-async function playTurn(delta, tick) {
-	console.log(`--- TICK ${tick} ---`)
-	tick++
-
-	setLouisToken()
-
-	// Promise.all([Library.fetchGameState(), Library.fetchActionList()]).then(([state, actionList]) => {
-	// 	if (actionList.length === 0) {
-	// 		const permagame = new PermaGameLogic(state.garden)
-	// 		var myActionList = permagame.getActionList()
-	// 		executeActionList(myActionList)
-	// 	} else {
-	// 		console.log('pass turn...')
-	// 	}
-	// })	
-	
-	const state = await Library.fetchGameState()
-	Promise.all([Library.fetchActionList()]).then(([actionList])=> {
-		console.log(JSON.stringify(actionList))
-	})
-
-
-	const permagame = new PermaGameLogic(state.garden)
-
-	var myActionList = permagame.getActionList()
-	executeActionList(myActionList)
-}
-
-
-// GAMING LOOP
-
-const hrtimeMs = function() {
+// Return process time
+const hrtimeMs = function () {
 	let time = process.hrtime()
 	return time[0] * 1000 + time[1] / 1000000
 }
 
-const TICK_RATE = 5
+const TICK_RATE = 1
 let tick = 0
 let previous = hrtimeMs()
 let tickLengthMs = 1000 / TICK_RATE
 
+// Gaming loop
 const loop = () => {
 	setTimeout(loop, tickLengthMs)
 	let now = hrtimeMs()
 	let delta = (now - previous) / 1000
-	console.log('delta', delta)
-	playTurn(delta, tick) // game logic would go here
+	// console.log("delta", delta)
+	update(delta, tick) // game logic would go here
 	previous = now
 	tick++
 }
 
-console.log("STARTING BOT!")
-loop() // starts the loop
+// Update
+async function update(delta, tick) {
+	console.log(`--- TICK ${tick} ---`)
+	tick++
 
-function executeActionList(actionList, maxAction = 1) {
-	var actionCount = 0
+	const state = await Library.fetchGameState()
+	const permagame = new PermaGameLogic(state)
 
-  console.log(actionList[0])
+	let action = permagame.getAction()
 
-	for (const key in actionList) {
-		if (actionCount >= maxAction) break
+	switch (action.actionName) {
+		case ActionEnum.FERTILIZE:
+			Library.fertilize(action.line, action.column)
+			break
 
-		let action = actionList[key]
+		case ActionEnum.PLANT:
+			Library.plant(action.line, action.column, action.plant)
+			break
 
-		switch (action.actionName) {
-			case ActionEnum.FERTILIZE:
-				Library.fertilize(action.line, action.column)
-				break
+		case ActionEnum.HARVEST:
+			Library.harvest(action.line, action.column)
+			break
 
-			case ActionEnum.PLANT:
-				Library.plant(action.line, action.column, action.plant)
-				break
-
-			case ActionEnum.HARVEST:
-				Library.harvest(action.line, action.column)
-				break
-
-			default:
-				console.error("No action")
-				break
-		}
-
-		actionCount++
+		default:
+			console.error("No action")
+			break
 	}
 }
 
@@ -99,3 +64,9 @@ function setGregToken() {
 		"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJEUEhvVWswek5KdnBqRFFWdjVSa3hkbDVRVU16TWc3RDQwUUFaanBMak1BIn0.eyJleHAiOjE2MzczODYyOTUsImlhdCI6MTYzNjA5MDI5NywiYXV0aF90aW1lIjoxNjM2MDkwMjk1LCJqdGkiOiIzZWEwMDE5ZS0yMjdkLTRkNDItYTUxMi1iODU5ZmZmODY1YTMiLCJpc3MiOiJodHRwczovL3Blcm1hZ2FtZS5hcHAubm9yc3lzLmlvL2F1dGgvcmVhbG1zL3Blcm1hZ2FtZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzODhiODc1OC1iYTM5LTQwMGMtYTVhZS03OTgwNWE5YjhhYTAiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJsb2dpbi1hcHAiLCJub25jZSI6IjQwMGJiMDRlLTRhYWEtNGM1Zi04ZGE1LTI4NzRmYjM0MTg2OCIsInNlc3Npb25fc3RhdGUiOiIxOTdlYzE5NC1mZmE1LTQzMzUtODEwMC1mMWNmOTU1ODNlMzAiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGVybWFnYW1lIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsInBsYXllciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImdyZWdsYW1hIiwiZW1haWwiOiJncmVnYWxiaXp6QGdtYWlsLmNvbSIsImdyb3VwIjoiUE9JVlJPTiJ9.CNlFSL4OFmZybP4Q0sL6k4WvnqaaD4tsvESX2ZHX3mIaYVjJdCjn37UyyUZj9zA25L7-4PoGFDj2xKmtWvnaDC3uM65Dl5u_2ocGvKPKwJ2t4Y1y18xUUXOt0FKedD-LofbItJZWE6rUBlxOQkszF8W1x7jMZTLMRpWhpF1Krmfs-xu20yfTdhrVVzIavmoB_z7glzGi_cqoK2Frch02L0qR-xNuCJZN1BlVNw1Onpx23BpLURnsV3f2DZyoDVeytLQjVAo1-lowlXa6vRYclAAMvAVNsDRlYfOoj0Llzg_OSLWXCCzNJNJWmkQUimZQVirYzvTbC9T0iYeO7juFnw"
 	)
 }
+
+//=============== START BOT ===============//
+
+setLouisToken()
+console.log("STARTING BOT!")
+loop()
