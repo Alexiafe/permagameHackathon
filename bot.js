@@ -28,29 +28,33 @@ const loop = () => {
 async function update(delta, tick) {
 	console.log(`--- TICK ${tick} ---`)
 	tick++
+	
+	await Promise.all([Library.fetchGameState(), Library.fetchActionList(), Library.fetchGameSettings()]).then(([state, userActionList, gameSettings]) => {
+		console.log(userActionList)
+		const permagame = new PermaGameLogic(state)
+	
+		let action = permagame.getAction()
+	
+		switch (action.actionName) {
+			case ActionEnum.FERTILIZE:
+				Library.fertilize(action.line, action.column)
+				break
+	
+			case ActionEnum.PLANT:
+				Library.plant(action.line, action.column, action.plant)
+				break
+	
+			case ActionEnum.HARVEST:
+				Library.harvest(action.line, action.column)
+				break
+	
+			default:
+				console.error("No action")
+				break
+		}
+	})
 
-	const state = await Library.fetchGameState()
-	const permagame = new PermaGameLogic(state)
-
-	let action = permagame.getAction()
-
-	switch (action.actionName) {
-		case ActionEnum.FERTILIZE:
-			Library.fertilize(action.line, action.column)
-			break
-
-		case ActionEnum.PLANT:
-			Library.plant(action.line, action.column, action.plant)
-			break
-
-		case ActionEnum.HARVEST:
-			Library.harvest(action.line, action.column)
-			break
-
-		default:
-			console.error("No action")
-			break
-	}
+	
 }
 
 function setLouisToken() {

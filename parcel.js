@@ -134,6 +134,8 @@ class Parcel {
 	getBestPlant() {
 		let plantList = []
 		for (const key in PLANTS) {
+			// Filter plants that need too much nutriment (we saw that some people planting wheat for us)
+			if (['CORN', 'ARTICHOKE', 'FENNEL', 'BROCCOLI'].includes(PLANTS[key].plantName)) continue
 			plantList.push({
 				plantName: PLANTS[key].plantName,
 				score: this.getPlantRoi(ActionEnum.PLANT, PLANTS[key].plantName),

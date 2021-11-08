@@ -37,6 +37,7 @@ class PermaGameLogic {
 	// If ROI high and soil quality < 10, increase a lot score to fertilize
 	// WHat to do : harvest or fertilize ?
 	// Do not fertilize a plant that will die the next turn
+	// If I'm the only one to contribute, then fertilize something else
 	/**
 	 *
 	 * @param {Parcel} parcel
