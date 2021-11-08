@@ -72,6 +72,46 @@ class Parcel {
 		return (plantPoints - totalExpenses) * myContribution
 	}
 
+	getWinnerRoi(currentWinner) {
+		// Get contribution which is the percentage of score the winner gonna collect
+		let winnerContribution = 0
+		let otherParticipationCount = 0
+		let winnerParticipationCount = 0
+		var playerFlag = false
+
+		for (const user in this.parcelHistory.playerInteraction) {
+			const number = this.parcelHistory.playerInteraction[user]
+			if (user === "lowi") {
+				playerFlag = true
+			}
+			else if (user === currentWinner) {
+				winnerParticipationCount += number
+			} else {
+				otherParticipationCount += number
+			}
+		}
+
+		if (playerFlag) return -1
+
+		if (winnerParticipationCount + otherParticipationCount > 0) {
+			winnerContribution = winnerParticipationCount / (winnerParticipationCount + otherParticipationCount)
+		}
+
+		// Get total expenses
+		let totalExpenses = this.parcelHistory.totalExpenses
+		if (this.isPlantExist()) totalExpenses += this.getFertilizationCountBeforeReady() * 5
+
+		if (totalExpenses > -5) totalExpenses -= 5
+
+		// Get plant points
+		let plantPoints = 0
+		if (this.isPlantExist() && !this.isPlantDead()) {
+			plantPoints = this.getPlantProperties().points
+		} else return 0
+
+		return (plantPoints - totalExpenses) * winnerContribution
+	}
+
 	getPlantProperties(plantName = null) {
 		if (!plantName) plantName = this.plant.plantType
 		return PLANTS.find((o) => o.plantName === plantName)

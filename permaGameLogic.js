@@ -14,14 +14,25 @@ class PermaGameLogic {
 	// Create action list sorted by score and return the first action
 	getAction() {
 		let actionList = []
-		// actionList.push(this.getParcelAction(new Parcel(0, 0, this.garden)))
-		// actionList.push(this.getParcelAction(new Parcel(0, 1, this.garden)))
-		// actionList.push(this.getParcelAction(new Parcel(1, 0, this.garden)))
-		// actionList.push(this.getParcelAction(new Parcel(1, 1, this.garden)))
 		for (const line in this.garden) {
 			for (const column in this.garden[line]) {
 				let parcel = new Parcel(line, column, this.garden)
 				actionList.push(this.getParcelAction(parcel))
+			}
+		}
+		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
+		console.log(actionList[0])
+		return actionList[0]
+	}
+
+	getAntiAction() {
+		let currentWinner = this.getCurrentWinner()
+		console.log("Winner: " + currentWinner)
+		let actionList = []
+		for (const line in this.garden) {
+			for (const column in this.garden[line]) {
+				let parcel = new Parcel(line, column, this.garden)
+				actionList.push(this.getFertilizeActionAgainstWinner(parcel, currentWinner))
 			}
 		}
 		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
@@ -67,6 +78,15 @@ class PermaGameLogic {
 			line: parcel.line,
 			column: parcel.column,
 			score,
+		}
+	}
+
+	getFertilizeActionAgainstWinner(parcel, currentWinner) {
+		return {
+			actionName: ActionEnum.FERTILIZE,
+			line: parcel.line,
+			column: parcel.column,
+			score: parcel.getWinnerRoi(currentWinner),
 		}
 	}
 
@@ -118,6 +138,17 @@ class PermaGameLogic {
 		}
 
 		return { actionName: ActionEnum.HARVEST, line: parcel.line, column: parcel.column, score: score }
+	}
+
+	getCurrentWinner(){
+		let currentWinner = this.players.reduce((obj1, obj2) => (obj1.score > obj2.score ? obj1 : obj2)).name
+		if (currentWinner == 'lowi'){
+			currentWinner =
+				this.players
+					.filter(player => player.name !== 'lowi')
+					.reduce((obj1, obj2) => (obj1.score > obj2.score ? obj1 : obj2)).name
+		}
+		return currentWinner
 	}
 }
 

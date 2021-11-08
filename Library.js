@@ -19,6 +19,7 @@ function requestFetch(path) {
     let data = "";
     const req = https.request(
       {
+        rejectUnauthorized: false,
         host: HOST,
         port: PORT,
         path: path,
@@ -47,6 +48,7 @@ function requestFetch(path) {
 function requestPost(path, data) {
   return new Promise((resolve, reject) => {
     const req = https.request({
+      rejectUnauthorized: false,
       host: HOST,
       port: PORT,
       path: path,
