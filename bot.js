@@ -28,55 +28,33 @@ const loop = () => {
 async function update(delta, tick) {
 	console.log(`--- TICK ${tick} ---`)
 	tick++
-	
-	await Promise.all([Library.fetchGameState(), Library.fetchActionList(), Library.fetchGameSettings()]).then(([state, userActionList, gameSettings]) => {
-		console.log(userActionList)
-		const permagame = new PermaGameLogic(state)
-	
-		let action = permagame.getAction()
-	
-		switch (action.actionName) {
-			case ActionEnum.FERTILIZE:
-				Library.fertilize(action.line, action.column)
-				break
-	
-			case ActionEnum.PLANT:
-				Library.plant(action.line, action.column, action.plant)
-				break
-	
-			case ActionEnum.HARVEST:
-				Library.harvest(action.line, action.column)
-				break
-	
-			default:
-				console.error("No action")
-				break
+
+	await Promise.all([Library.fetchGameState(), Library.fetchActionList(), Library.fetchGameSettings()]).then(
+		([state, userActionList, gameSettings]) => {
+			const permagame = new PermaGameLogic(state)
+
+			// let action = permagame.getAction()
+			let action = permagame.getAntiAction()
+
+			switch (action.actionName) {
+				case ActionEnum.FERTILIZE:
+					Library.fertilize(action.line, action.column)
+					break
+
+				case ActionEnum.PLANT:
+					Library.plant(action.line, action.column, action.plant)
+					break
+
+				case ActionEnum.HARVEST:
+					Library.harvest(action.line, action.column)
+					break
+
+				default:
+					console.error("No action")
+					break
+			}
 		}
-	})
-
-	const state = await Library.fetchGameState()
-	const permagame = new PermaGameLogic(state)
-
-	// let action = permagame.getAction()
-	let action = permagame.getAntiAction()
-
-	switch (action.actionName) {
-		case ActionEnum.FERTILIZE:
-			Library.fertilize(action.line, action.column)
-			break
-
-		case ActionEnum.PLANT:
-			Library.plant(action.line, action.column, action.plant)
-			break
-
-		case ActionEnum.HARVEST:
-			Library.harvest(action.line, action.column)
-			break
-
-		default:
-			console.error("No action")
-			break
-	}
+	)
 }
 
 function setLouisToken() {
@@ -92,7 +70,9 @@ function setGregToken() {
 }
 
 function setAlexiaToken() {
-	Library.setToken("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJEUEhvVWswek5KdnBqRFFWdjVSa3hkbDVRVU16TWc3RDQwUUFaanBMak1BIn0.eyJleHAiOjE2Mzc0OTM0MTMsImlhdCI6MTYzNjE5NzQyMiwiYXV0aF90aW1lIjoxNjM2MTk3NDEzLCJqdGkiOiJmNTJhZjhjZC0xZmQ5LTQ4ZWYtOWU5Mi01NjI3NjNjMTE2MmUiLCJpc3MiOiJodHRwczovL3Blcm1hZ2FtZS5hcHAubm9yc3lzLmlvL2F1dGgvcmVhbG1zL3Blcm1hZ2FtZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJkOTk0M2I2NC00ZDRlLTQyODktYjJjNS00OWFhMTQ1MjBlN2QiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJsb2dpbi1hcHAiLCJub25jZSI6IjUzYjEyMDY1LTgwYmItNDgwMS1hZWZkLTdjMmU5OWI1NWUzMyIsInNlc3Npb25fc3RhdGUiOiI5YzY2ZjIyNy04NjM2LTQ4MDktYmE1NC03NzU5MGNiZTU1ZDYiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGVybWFnYW1lIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsInBsYXllciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImFsZXhpYWYiLCJlbWFpbCI6ImFsZXhpYS1pcy1iYWNrQGhvdG1haWwuZnIiLCJncm91cCI6IiJ9.curhP9a9L7PkhSNdHRmxEySCuR9EQcLBusPPFZiFvpLYDvAYvcX-gh-ysMrhESwQ8wsw6I8serVj7XIiGUBFIuFgNRFZur3N8ss664TQknx8jplECcV0XtRWtu1ItTFB7SDWlCYQWsSZho2WgSH-M7LaMvlgBz2i5eLC77olRZ-D9TJyi7OiV85zwKZK8dpDPz_vd3P6vWopua-r7qD28UFTegD3WBLjsgMlH581WFtvKANbDUFzJpym196ZzWq0-fKabIyejP5DQske_EzEM6nLCicOXQOd7ddo1vt_4TYKmbbo0pJa9ZJ7FmnVcyhN-_gTOe_atOeSFDaKOyVhEA")
+	Library.setToken(
+		"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJEUEhvVWswek5KdnBqRFFWdjVSa3hkbDVRVU16TWc3RDQwUUFaanBMak1BIn0.eyJleHAiOjE2Mzc0OTM0MTMsImlhdCI6MTYzNjE5NzQyMiwiYXV0aF90aW1lIjoxNjM2MTk3NDEzLCJqdGkiOiJmNTJhZjhjZC0xZmQ5LTQ4ZWYtOWU5Mi01NjI3NjNjMTE2MmUiLCJpc3MiOiJodHRwczovL3Blcm1hZ2FtZS5hcHAubm9yc3lzLmlvL2F1dGgvcmVhbG1zL3Blcm1hZ2FtZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJkOTk0M2I2NC00ZDRlLTQyODktYjJjNS00OWFhMTQ1MjBlN2QiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJsb2dpbi1hcHAiLCJub25jZSI6IjUzYjEyMDY1LTgwYmItNDgwMS1hZWZkLTdjMmU5OWI1NWUzMyIsInNlc3Npb25fc3RhdGUiOiI5YzY2ZjIyNy04NjM2LTQ4MDktYmE1NC03NzU5MGNiZTU1ZDYiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGVybWFnYW1lIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsInBsYXllciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImFsZXhpYWYiLCJlbWFpbCI6ImFsZXhpYS1pcy1iYWNrQGhvdG1haWwuZnIiLCJncm91cCI6IiJ9.curhP9a9L7PkhSNdHRmxEySCuR9EQcLBusPPFZiFvpLYDvAYvcX-gh-ysMrhESwQ8wsw6I8serVj7XIiGUBFIuFgNRFZur3N8ss664TQknx8jplECcV0XtRWtu1ItTFB7SDWlCYQWsSZho2WgSH-M7LaMvlgBz2i5eLC77olRZ-D9TJyi7OiV85zwKZK8dpDPz_vd3P6vWopua-r7qD28UFTegD3WBLjsgMlH581WFtvKANbDUFzJpym196ZzWq0-fKabIyejP5DQske_EzEM6nLCicOXQOd7ddo1vt_4TYKmbbo0pJa9ZJ7FmnVcyhN-_gTOe_atOeSFDaKOyVhEA"
+	)
 }
 
 //=============== START BOT ===============//
