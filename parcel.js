@@ -59,14 +59,9 @@ class Parcel {
 			myContribution = myParticipationCount / (myParticipationCount + otherParticipationCount)
 		}
 
-		// get Total exenses (include 5 if I'm gonna fertilize)
+		// Get total expenses
 		let totalExpenses = this.parcelHistory.totalExpenses
-		if (action === ActionEnum.FERTILIZE) totalExpenses += 5
-
-		// If plant will die after 2 turns, too risky to plant the plant so ROI will be 0
-		if (action === ActionEnum.PLANT && this.getNutrimentNeededPerTurn(plantName) > this.soilQualityPercentage * 2) {
-			return 0
-		}
+		if (plantName || this.isPlantExist()) totalExpenses += this.getFertilizationCountBeforeReady(plantName) * 5
 
 		// Get plant points
 		let plantPoints = 0
@@ -74,8 +69,6 @@ class Parcel {
 			plantPoints = this.getPlantProperties(plantName).points
 		}
 
-		// Get future total expenses
-		totalExpenses += this.getFertilizationCountBeforeReady(plantName) * 5
 		return (plantPoints - totalExpenses) * myContribution
 	}
 
@@ -100,7 +93,7 @@ class Parcel {
 		let sameFamilyCount = neighboursList.filter((el) => el == plantFamily).length
 		let percentageFamilyPenalities = 1 + 0.4 * sameFamilyCount
 
-		return (parseFloat(this.getPlantProperties(plantName).nutrientNeed)) * percentageFamilyPenalities
+		return parseFloat(this.getPlantProperties(plantName).nutrientNeed) * percentageFamilyPenalities
 	}
 
 	getFertilizationCountBeforeReady(plantName = null) {

@@ -14,18 +14,18 @@ class PermaGameLogic {
 	// Create action list sorted by score and return the first action
 	getAction() {
 		let actionList = []
-		actionList.push(this.getParcelAction(new Parcel(0, 0, this.garden)))
-		actionList.push(this.getParcelAction(new Parcel(0, 1, this.garden)))
-		actionList.push(this.getParcelAction(new Parcel(1, 0, this.garden)))
-		actionList.push(this.getParcelAction(new Parcel(1, 1, this.garden)))
-		// for (const line in this.garden) {
-		// 	for (const column in this.garden[line]) {
-		// 		let parcel = new Parcel(line, column, this.garden)
-		// 		actionList.push(this.getParcelAction(parcel))
-		// 	}
-		// }
+		// actionList.push(this.getParcelAction(new Parcel(0, 0, this.garden)))
+		// actionList.push(this.getParcelAction(new Parcel(0, 1, this.garden)))
+		// actionList.push(this.getParcelAction(new Parcel(1, 0, this.garden)))
+		// actionList.push(this.getParcelAction(new Parcel(1, 1, this.garden)))
+		for (const line in this.garden) {
+			for (const column in this.garden[line]) {
+				let parcel = new Parcel(line, column, this.garden)
+				actionList.push(this.getParcelAction(parcel))
+			}
+		}
 		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
-		console.log(actionList[0], actionList[1], actionList[2], actionList[3])
+		console.log(actionList[0])
 		return actionList[0]
 	}
 
@@ -44,20 +44,19 @@ class PermaGameLogic {
 	 */
 	getFertilizeAction(parcel) {
 		let SOIL_QUALITY_THRESHOLD = 50
-		let FERTILIZATION_IMPORTANCE = 3
+		let FERTILIZATION_IMPORTANCE = 2.5
 
-		let score = 1 // Fertilize if you cannot plant or harvest
-		if (parcel.isPlantExist() && parcel.isPlantGrowing()) {
-			// if plant will need fertilization
+		let score = 0
+
+		if (parcel.isPlantGrowing()) {
+			// if plant needs fertilization
 			if (parcel.getFertilizationCountBeforeReady() > 0 && parcel.soilQualityPercentage < SOIL_QUALITY_THRESHOLD) {
-				score =
-					(parcel.getPlantRoi(ActionEnum.FERTILIZE) - (parcel.getNutrimentNeededPerTurn() - 1) * 5) *
-					FERTILIZATION_IMPORTANCE
+				score = parcel.getPlantRoi(ActionEnum.FERTILIZE) * FERTILIZATION_IMPORTANCE
 			} else {
 				score = -10
 			}
 		}
-		
+
 		// Prevent: Fertilize before plant, but check if it's worth it to fertilize...
 		if (!parcel.isPlantExist() && parcel.getPlantRoi(ActionEnum.FERTILIZE, "CORN") > 0) {
 			score = 3
@@ -76,21 +75,23 @@ class PermaGameLogic {
 	 * @returns {Action}
 	 */
 	getPlantAction(parcel) {
-		let PLANT_IMPORTANCE = 1
-		let SOIL_QUALITY_THRESHOLD_TO_PLANT = 30
+		let PLANT_IMPORTANCE = 1 // roi * var
+		let SOIL_QUALITY_THRESHOLD_TO_PLANT = 20 // Don't plant if soil quality < var
 
-		let bestPlant = "WHEAT"
-		let score = -1 // if plant exist
+		let score = 0
+		let plantName = "WHEAT"
 
 		if (!parcel.isPlantExist() && parcel.soilQualityPercentage > SOIL_QUALITY_THRESHOLD_TO_PLANT) {
 			let result = parcel.getBestPlant()
-			bestPlant = result.plantName
+			plantName = result.plantName
 			score = result.score * PLANT_IMPORTANCE
 		} else {
-			score = 0 // Prevent: Don't plant it the plant will die... Fertilize first
+			score = -10 // Prevent: Don't plant it the plant will die... Fertilize first
 		}
 
-		return { actionName: ActionEnum.PLANT, line: parcel.line, column: parcel.column, score: score, plant: bestPlant }
+		if (parcel.isPlantExist()) score = -1000
+
+		return { actionName: ActionEnum.PLANT, line: parcel.line, column: parcel.column, score: score, plant: plantName }
 	}
 
 	/**
@@ -99,18 +100,22 @@ class PermaGameLogic {
 	 * @returns {Action}
 	 */
 	getHarvestAction(parcel) {
-		let SOIL_QUALITY_IMPORTANCE = 0.08 // soilQuality * var
+		let SOIL_QUALITY_IMPORTANCE = 0.08 // soilQuality * var (beyongs dead plant, which one should I harvest?)
+		let HARVEST_IMPORTANCE = 10 // roi * var
 
-		let score = -1 // if no plant or plant not ready
+		let score = 0
 
-		if (parcel.isPlantDead()) {
-			score = parcel.soilQualityPercentage * SOIL_QUALITY_IMPORTANCE
-			// if (score === 0) score = 2 // Prevent: if all soil are at 0 and there is a dead plant, harvest instead of fertilize
+		// No plant or plant not ready
+		if (!parcel.isPlantExist || !parcel.isPlantReady()) score = -1000
+
+		// Plant dead, score regarding soil quality
+		if (parcel.isPlantDead()) score = parcel.soilQualityPercentage * SOIL_QUALITY_IMPORTANCE
+
+		// Plant ready and ROI > 0, harvest !
+		if (parcel.isPlantReady()) {
+			score = parcel.getPlantRoi(ActionEnum.HARVEST) * HARVEST_IMPORTANCE
 		}
 
-		if (parcel.isPlantExist() && parcel.isPlantReady()) {
-			score = (parcel.getPlantRoi(ActionEnum.HARVEST) > 0) ? 100 : 0
-		}
 		return { actionName: ActionEnum.HARVEST, line: parcel.line, column: parcel.column, score: score }
 	}
 }
