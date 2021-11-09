@@ -29,54 +29,30 @@ async function update(delta, tick) {
 	console.log(`--- TICK ${tick} ---`)
 	tick++
 
-	await Promise.all([Library.fetchGameState(), Library.fetchActionList(), Library.fetchGameSettings()]).then(
-		([state, userActionList, gameSettings]) => {
+	await Promise.all([Library.fetchGameState(), Library.fetchActionList()]).then(
+		([state, userActionList]) => {
 			const permagame = new PermaGameLogic(state)
 
-
 			// main program
-			let myActions = permagame.getAction()
-			let myFinalAction = myActions[0]
-
-			for (let myAction of myActions){
-
-				let actionOnSameParcel = userActionList.filter(el => el.action.column == myAction.column && el.action.line == myAction.line)
-				let rank = actionOnSameParcel.findIndex(el => el.playerName == 'lowi')
-
-				if (rank == 0 || actionOnSameParcel.length == 0) {
-					myFinalAction = myAction
-					break
-				}
-			}
+			let myAction = permagame.getAction(userActionList)
 
 			// program to kill others
-			// let currentWinners = permagame.getCurrentWinners()
-			// let target = currentWinners[0]
-			// let myFinalAction = {}
-
-			// for (let player of currentWinners) {
-			// 	target = player
-			// 	myFinalAction = permagame.getAntiAction(target)
-			// 	if (myFinalAction.score > 0) break
-			// }
-
-			// console.log(`Let's destroy ${target}`)
-
+			// let myAction = permagame.getAntiAction(userActionList)
 
 			// program
-			console.log(myFinalAction)
+			console.log(myAction)
 			
-			switch (myFinalAction.actionName) {
+			switch (myAction.actionName) {
 				case ActionEnum.FERTILIZE:
-					Library.fertilize(myFinalAction.line, myFinalAction.column)
+					Library.fertilize(myAction.line, myAction.column)
 					break
 
 				case ActionEnum.PLANT:
-					Library.plant(myFinalAction.line, myFinalAction.column, myFinalAction.plant)
+					Library.plant(myAction.line, myAction.column, myAction.plant)
 					break
 
 				case ActionEnum.HARVEST:
-					Library.harvest(myFinalAction.line, myFinalAction.column)
+					Library.harvest(myAction.line, myAction.column)
 					break
 
 				default:

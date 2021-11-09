@@ -3,6 +3,8 @@ const Action = require("./action").Action
 
 const { ActionEnum } = require("./enum")
 
+const currentPlayer = 'lowi'
+
 class PermaGameLogic {
 	constructor(state) {
 		this.garden = state.garden
@@ -12,7 +14,7 @@ class PermaGameLogic {
 	}
 
 	// Create action list sorted by score and return the first action
-	getAction() {
+	getAction(userActionList) {
 		let actionList = []
 		for (const line in this.garden) {
 			for (const column in this.garden[line]) {
@@ -21,15 +23,47 @@ class PermaGameLogic {
 			}
 		}
 		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
-		return actionList
+		// Select action according to priority
+		return this.getFirstAvailableAction(userActionList, actionList)
 	}
 
-	getAntiAction(currentWinner) {
+	getFirstAvailableAction(userActionList, actionList){
+		let availableAction = actionList[0]
+
+		for (let myAction of actionList){
+
+			let actionOnSameParcel = userActionList.filter(el => el.action.column == myAction.column && el.action.line == myAction.line)
+			let rank = actionOnSameParcel.findIndex(el => el.playerName == currentPlayer)
+
+			if (rank == 0 || actionOnSameParcel.length == 0) {
+				availableAction = myAction
+				break
+			}
+		}
+		return availableAction
+	}
+
+	getAntiAction(){
+		let currentWinners = this.getCurrentWinners()
+		let playerTarget = currentWinners[0]
+		let action = {}
+
+		for (let player of currentWinners) {
+			playerTarget = player
+			action = this.getPlayerAction(playerTarget)
+			if (action.score > 0) break
+		}
+
+		console.log(`Let's destroy ${playerTarget}`)
+		return action
+	}
+
+	getPlayerAction(playerTarget) {
 		let actionList = []
 		for (const line in this.garden) {
 			for (const column in this.garden[line]) {
 				let parcel = new Parcel(line, column, this.garden)
-				actionList.push(this.getFertilizeActionAgainstWinner(parcel, currentWinner))
+				actionList.push(this.getFertilizeActionAgainstWinner(parcel, playerTarget))
 			}
 		}
 		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
@@ -140,7 +174,7 @@ class PermaGameLogic {
 		return this.players
 			.sort((a, b) => (a.score < b.score && 1) || -1)
 			.map((player) => player.name)
-			.filter((name) => name != "lowi")
+			.filter((name) => name != currentPlayer)
 	}
 }
 
