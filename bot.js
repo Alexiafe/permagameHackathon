@@ -33,41 +33,50 @@ async function update(delta, tick) {
 		([state, userActionList, gameSettings]) => {
 			const permagame = new PermaGameLogic(state)
 
-			let currentWinners = permagame.getCurrentWinners()
-			let boloss = currentWinners[0]
 
-	
-			// let action = permagame.getAction()
-			let action = permagame.getAntiAction(currentWinners[0])
+			// main program
+			let myActions = permagame.getAction()
+			let myFinalAction = myActions[0]
 
-			if (action.score <= 0) {
-				boloss = currentWinners[1]
-				action = permagame.getAntiAction(currentWinners[1])
+			for (let myAction of myActions){
+
+				let actionOnSameParcel = userActionList.filter(el => el.action.column == myAction.column && el.action.line == myAction.line)
+				let rank = actionOnSameParcel.findIndex(el => el.playerName == 'lowi')
+
+				if (rank == 0 || actionOnSameParcel.length == 0) {
+					myFinalAction = myAction
+					break
+				}
 			}
 
-			if (action.score <= 0) {
-				boloss = currentWinners[1]
-				action = permagame.getAntiAction(currentWinners[2])
-			}
+			// program to kill others
+			// let currentWinners = permagame.getCurrentWinners()
+			// let target = currentWinners[0]
+			// let myFinalAction = {}
 
-			if (action.score <= 0) {
-				boloss = 'no one'
-				action.actionName = null
-			}
+			// for (let player of currentWinners) {
+			// 	target = player
+			// 	myFinalAction = permagame.getAntiAction(target)
+			// 	if (myFinalAction.score > 0) break
+			// }
 
-			console.log(`Let's destroy ${boloss}`)
+			// console.log(`Let's destroy ${target}`)
 
-			switch (action.actionName) {
+
+			// program
+			console.log(myFinalAction)
+			
+			switch (myFinalAction.actionName) {
 				case ActionEnum.FERTILIZE:
-					Library.fertilize(action.line, action.column)
+					Library.fertilize(myFinalAction.line, myFinalAction.column)
 					break
 
 				case ActionEnum.PLANT:
-					Library.plant(action.line, action.column, action.plant)
+					Library.plant(myFinalAction.line, myFinalAction.column, myFinalAction.plant)
 					break
 
 				case ActionEnum.HARVEST:
-					Library.harvest(action.line, action.column)
+					Library.harvest(myFinalAction.line, myFinalAction.column)
 					break
 
 				default:
