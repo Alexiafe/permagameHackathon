@@ -34,25 +34,25 @@ async function update(delta, tick) {
 			const permagame = new PermaGameLogic(state)
 
 			// main program
-			let myAction = permagame.getAction(userActionList)
+			let action = permagame.getAction(userActionList)
 
 			// program to kill others
-			// let myAction = permagame.getAntiAction(userActionList)
+			// let action = permagame.getAntiAction(userActionList)
 
 			// program
-			console.log(myAction)
+			console.log(action)
 			
-			switch (myAction.actionName) {
+			switch (action.actionName) {
 				case ActionEnum.FERTILIZE:
-					Library.fertilize(myAction.line, myAction.column)
+					Library.fertilize(action.line, action.column)
 					break
 
 				case ActionEnum.PLANT:
-					Library.plant(myAction.line, myAction.column, myAction.plant)
+					Library.plant(action.line, action.column, action.plant)
 					break
 
 				case ActionEnum.HARVEST:
-					Library.harvest(myAction.line, myAction.column)
+					Library.harvest(action.line, action.column)
 					break
 
 				default:

@@ -3,7 +3,7 @@ const Action = require("./action").Action
 
 const { ActionEnum } = require("./enum")
 
-const currentPlayer = 'lowi'
+const currentPlayer = 'alexiaf'
 
 class PermaGameLogic {
 	constructor(state) {
@@ -25,22 +25,41 @@ class PermaGameLogic {
 		actionList = actionList.sort((a, b) => (a.score < b.score ? 1 : -1))
 		// Select action according to priority
 		return this.getFirstAvailableAction(userActionList, actionList)
+		// return actionList[0]
 	}
 
 	getFirstAvailableAction(userActionList, actionList){
-		let availableAction = actionList[0]
 
-		for (let myAction of actionList){
-
-			let actionOnSameParcel = userActionList.filter(el => el.action.column == myAction.column && el.action.line == myAction.line)
-			let rank = actionOnSameParcel.findIndex(el => el.playerName == currentPlayer)
-
-			if (rank == 0 || actionOnSameParcel.length == 0) {
-				availableAction = myAction
-				break
+		for (let action of actionList){
+			if (this.isActionAvailable(userActionList, action)){
+				return action
 			}
 		}
-		return availableAction
+		return actionList[0]
+	}
+
+	isActionAvailable(userActionList, myAction){
+		// let altruistePlayers = this.getAltruistePlayers()
+		let actionOnSameParcel = userActionList.filter(el => el.action.column == myAction.column && el.action.line == myAction.line)
+
+		// if (actionOnSameParcel.length <= 0) {
+		// 	return true
+		// } else if (this.amIAltruiste()){
+		// 	let altuisteActionsOnParcel = actionOnSameParcel.filter( action => altruistePlayers.includes(action.playerName))
+		// 	let rank = altuisteActionsOnParcel.findIndex(el => el.playerName == currentPlayer)
+		// 	return (rank == 0 || actionOnSameParcel.length == 0) ? true : false
+		// } else if (altruistePlayers.length) {
+		// 	return false
+		// } else {
+		// 	let rank = actionOnSameParcel.findIndex(el => el.playerName == currentPlayer)
+		// 	return (rank == 0 || actionOnSameParcel.length == 0) ? true : false
+		// }
+
+
+		if (actionOnSameParcel.length === 0) return true
+		else if (actionOnSameParcel.findIndex(el => el.playerName == currentPlayer) === 0) return true
+		else return false
+
 	}
 
 	getAntiAction(){
@@ -175,6 +194,14 @@ class PermaGameLogic {
 			.sort((a, b) => (a.score < b.score && 1) || -1)
 			.map((player) => player.name)
 			.filter((name) => name != currentPlayer)
+	}
+
+	amIAltruiste(){
+		return this.players.filter(player => player.name === currentPlayer)[0].priority
+	}
+
+	getAltruistePlayers(){
+		return this.players.filter(player => player.priority).map((player) => player.name)
 	}
 }
 
