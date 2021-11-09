@@ -25,9 +25,7 @@ class PermaGameLogic {
 		return actionList[0]
 	}
 
-	getAntiAction() {
-		let currentWinner = this.getCurrentWinner()
-		console.log("Winner: " + currentWinner)
+	getAntiAction(currentWinner) {
 		let actionList = []
 		for (const line in this.garden) {
 			for (const column in this.garden[line]) {
@@ -140,15 +138,11 @@ class PermaGameLogic {
 		return { actionName: ActionEnum.HARVEST, line: parcel.line, column: parcel.column, score: score }
 	}
 
-	getCurrentWinner(){
-		let currentWinner = this.players.reduce((obj1, obj2) => (obj1.score > obj2.score ? obj1 : obj2)).name
-		if (currentWinner == 'lowi'){
-			currentWinner =
-				this.players
-					.filter(player => player.name !== 'lowi')
-					.reduce((obj1, obj2) => (obj1.score > obj2.score ? obj1 : obj2)).name
-		}
-		return currentWinner
+	getCurrentWinners() {
+		return this.players
+			.sort((a, b) => (a.score < b.score && 1) || -1)
+			.map((player) => player.name)
+			.filter((name) => name != "lowi")
 	}
 }
 

@@ -33,8 +33,29 @@ async function update(delta, tick) {
 		([state, userActionList, gameSettings]) => {
 			const permagame = new PermaGameLogic(state)
 
+			let currentWinners = permagame.getCurrentWinners()
+			let boloss = currentWinners[0]
+
+	
 			// let action = permagame.getAction()
-			let action = permagame.getAntiAction()
+			let action = permagame.getAntiAction(currentWinners[0])
+
+			if (action.score <= 0) {
+				boloss = currentWinners[1]
+				action = permagame.getAntiAction(currentWinners[1])
+			}
+
+			if (action.score <= 0) {
+				boloss = currentWinners[1]
+				action = permagame.getAntiAction(currentWinners[2])
+			}
+
+			if (action.score <= 0) {
+				boloss = 'no one'
+				action.actionName = null
+			}
+
+			console.log(`Let's destroy ${boloss}`)
 
 			switch (action.actionName) {
 				case ActionEnum.FERTILIZE:
